@@ -12,7 +12,7 @@ Sin embargo no están suficientemente estudiadas toda las aplicaciones posibles
 
 Por ello, hemos comparado las diferencias existentes en la cápsula endoscópica a la hora de informar y proceder entre dos centros diferentes. Con este estudio hemos querido hacer una aproximación a cuáles serían los indicadores de calidad para tener una evaluación completa y correcta, mejorando la capacidad diagnóstica de la prueba, independientemente de la indicación. 
 
-Tipo de cápsulas existentes según el año de aprobación por la FDA.
+Tipo de cápsulas existentes según el año de aprobación por la FDA, donde se aprecia la cápsula empleada mayoritariamente en nuestro estudio.
 
 <img src="tipos.png" />
 
