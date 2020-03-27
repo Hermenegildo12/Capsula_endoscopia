@@ -4,5 +4,6 @@ import operator
 import matplotlib.pyplot as plt
 import seaborn as sns
 import math
-from funcion import *
-from limpieza import *
+from código.limpieza import *
+from código.funcion import *
+import limpieza
