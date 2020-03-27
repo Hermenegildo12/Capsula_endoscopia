@@ -211,3 +211,57 @@ indicaciones_nuevas=['Alt_tránsito','Dolor_abd','Estreñimiento','Diarrea','Vó
     a,b,c,d,e,f,g=porcentajes(datos,hz_Tta,hz_prueba,no_evaluable,e)
     print(a)'''
 
+# Cribado de cáncer colorrectal
+#Al ser una índicación tan dirigida, decido cambiar el analisis para resaltar las variables que indicarián el hallazgo de dicho cáncer
+
+cribado=['Pólipo_col',
+ 'Pólipo_C_drch',
+ 'Pólipo_C_asce',
+ 'Pólipo_C_trans',
+ 'Pólipo_C_izq',
+ 'Pólipo_C_desc',
+ 'Pólipo_ciego',
+ 'Pólipo_sig',
+ 'Pólipo_recto']
+
+a,b,c,d,e,f,g=porcentajes(datos,hz_Tta,hz_prueba,no_evaluable,"Cribado")
+
+cidma_cribado = datos[(datos['Médico']==0) &
+                (datos['Cribado']==1)]
+
+#Pacientes de cidma con indicación de cribado con hallazgos de pólipos
+cidma_polipo=cidma_cribado[cidma_cribado["Pólipo_col"]==1]
+
+#De esos pacientes con pólipos, número con zonas del tracto digestivo no evaluable
+no_evaluable_polipo_cidma=cidma_polipo[(cidma_polipo['No_evaluable_esof']==1) | (cidma_polipo["No_evaluable_estom"]==1)
+       | (cidma_polipo['No_evaluable_del']==1) | (cidma_polipo['No_evaluable_col']==1)]
+
+#Creo la variable no informado, que agrupa todas las columnas que reflejan ausencia de datos en el informe sobre las
+#distintas zonas gastrointestinales
+
+no_informado=['No_informado_esof','No_informado_estom','No_informado_del','No_informado_col']
+
+#De esos mismos pacientes, cuales son los que tienen alguna zona GI sin informar
+c_no_info=cidma_polipo[no_informado]
+
+uruguay_cribado = datos[(datos['Médico']==1) &
+                (datos['Cribado']==1)]
+
+#Pacientes del hospital Italiano con indicación de cribado con hallazgos de pólipos
+uruguay_polipo=uruguay_cribado[uruguay_cribado["Pólipo_col"]==1]
+
+#De esos pacientes con pólipos, número con zonas del tracto digestivo no evaluable.
+no_evaluable_polipo_uru=uruguay_polipo[(uruguay_polipo['No_evaluable_esof']==1) | (uruguay_polipo["No_evaluable_estom"]==1)
+       | (uruguay_polipo['No_evaluable_del']==1) | (uruguay_polipo['No_evaluable_col']==1)]
+
+#De esos mismos pacientes, cuales son los que tienen alguna zona GI sin informar
+u_no_info=uruguay_polipo[no_informado]
+
+a["Pólipos colón"]=[[3,(str((3*100//9))+" %")],[13,(str((13*100//49))+" %")]]
+
+#Resultado
+#Como se ve en la tabla resumen, a un 33% de los pacientes que venían por cribado se les detecto pólipos en el colon en CIDMA y a un 26% en el hospital Italiano.
+# Destacando que, en ninguno de los dos centros, dichos pacientes tienen zonas GI no evaluadas.
+# Tan solo detacar que de los 13 pacientes del hospital Italiano con pólipos,
+# solo 2 de ellos tienen informado todo el tracto intestinal.
+#  estando el resto con varias zonas GI no informadas, destacando el estómago que no se informa en 11 pacientes.
