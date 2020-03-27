@@ -11,6 +11,7 @@ from hallazgos_zona import *
 from yeyuno_ileon import *
 from criterios import *
 from alta_calidad import *
+from tiempos import *
 
 
 #NÚMERO DE PACIENTES POR CENTRO, SEXO Y TRAMOS DE EDAD
@@ -109,3 +110,9 @@ print(union)
 
 #Resultados de alta calidad
 print(cuadro)
+
+#Resultado tiempo de tránsito cidma
+print(cidma_transito)
+
+#Resultado tiempo de tránsito Hospital Italiano
+print(uruguay_transito)

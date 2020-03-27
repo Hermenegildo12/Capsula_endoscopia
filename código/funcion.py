@@ -495,3 +495,24 @@ def zonas(u_hz_T,hz_total,c_hz_T,datos,zona, hz_zona):
     return (pregunta, "{} CIDMA hallazgos más frecuentes {}".format(zona, c_hz_f[0:3]),
             "{} Uruguay hallazgos más frecuentes {}".format(zona, u_hz_f[0:3]))
 
+
+#Función: cambia los valores vacios por 0
+#Parámetros: e:columna a la que evaluar los valores
+def recodificar (e):
+    if e==" ":
+        return int(0)
+    elif e!=" ":
+        return e
+
+
+# Función: Devuelve el numero de hallazgos totales en las poblaciones dadas
+# Páramteros: centro_rap: Primer centro // centro_len: Segundo centro // hz: Hallazgos que queremos sumas
+def velocidad(centro_rap, centro_len, hz):
+    centro_rap["Hz_suma"] = centro_rap[hz].sum(axis=1)
+    centro_len["Hz_suma"] = centro_len[hz].sum(axis=1)
+    c_rap = centro_rap["Hz_suma"].sum()
+    c_len = centro_len["Hz_suma"].sum()
+    return (("Número de hallazgos en pacientes con tránsito rápido es {}".format(c_rap)),
+            ("Número de hallazgos en pacientes con tránsito lento es {}".format(c_len)))
+
+
