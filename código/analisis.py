@@ -7,6 +7,10 @@ import math
 import código
 from limpieza import *
 from funcion import *
+from hallazgos_zona import *
+from yeyuno_ileon import *
+from criterios import *
+from alta_calidad import *
 
 
 #NÚMERO DE PACIENTES POR CENTRO, SEXO Y TRAMOS DE EDAD
@@ -90,3 +94,18 @@ len(cidma_no_ex[((cidma_no_ex['Calidad_preparación']==0) | (cidma_no_ex['Calida
 # Por lo que el motivo principal puede ser la calidad de la preparación, donde se ve que 7 tienen un calidad entre pobre y buena,
 # de los cuales 2 no llegaron a hacer una limpieza de colon adecuada.
 #Esto podría explicarse por la corta edad de los pacientes, con una edad media de 22 años.
+
+#Resultado de alguna indicación
+print(pregunta_1)
+
+#Resultado de los hallazgos patologicos según la región del tracto GI
+print(HZ_ZONAS)
+
+#Resultado de los hallazgos encontrados en yeyuno e íleon
+print(oculto)
+
+#Resultados de algunos criterios de calidad
+print(union)
+
+#Resultados de alta calidad
+print(cuadro)

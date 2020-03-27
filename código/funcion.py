@@ -443,3 +443,55 @@ def resumen (datos,indicacion,valor,signo):
                                 [len(c_sub)+len(u_sub),por(251,len(c_sub)+len(u_sub))]]}
                         ,index=["Cidma","Uruguay","Total"])
     return x
+
+# Función que recibe los hallazgos de una zona del tracto digestivo Y el centro médico donde se realizo la prueba
+#y devuelve la suma de todos los hallazgos encontrados en ella. Ya sea en el centro o sino se le dice, devuelve la suma
+# zona: Hallazgo a sumar valores // valor: 0(CIDMA);1(Uruguay);2(Ambos POR DEFECTO)
+def hz (datos,zona,valor=2):
+    if valor<=1:
+        base=datos[datos["Médico"]==valor]
+        hz_total=0
+        a=base[zona].sum()
+        for e in a:
+            if type(e)==int:
+                hz_total=hz_total+e
+        return hz_total
+    elif valor>1:
+        hz_total=0
+        a=datos[zona].sum()
+        for e in a:
+            if type(e)==int:
+                hz_total=hz_total+e
+        return hz_total
+
+
+# Función: Calcular porcentajes de hallazgos por regiones del tracto GI + 3 hallazgos más frecuentes (Todo según el centro)
+# Parámetros: zona:(str) Nombre de la región que quedemos analizar // hz_zona: Distintos hallazgos del área al estudio
+#u_hz_T/c_hz_T: Número de hallazgos de totales de los distintos centros// datos: la base de datos
+def zonas(u_hz_T,hz_total,c_hz_T,datos,zona, hz_zona):
+    c = datos[datos["Médico"] == 0]
+    u = datos[datos["Médico"] == 1]
+    c_ = c[hz_zona].sum()
+    c_hz_f = sorted(c_.items(), key=operator.itemgetter(1), reverse=True)  # Hallazgos más frecuentes de la zona CIDMA
+    u_ = u[hz_zona].sum()
+    u_hz_f = sorted(u_.items(), key=operator.itemgetter(1), reverse=True)  # Hallazgos más frecuentes de la zona Uruguay
+
+    c_hz_suma = 0
+    for e in c_hz_f:
+        for i in e:
+            if type(i) == int:
+                c_hz_suma = c_hz_suma + i
+    u_hz_suma = 0
+    for e in u_hz_f:
+        for i in e:
+            if type(i) == int:
+                u_hz_suma = u_hz_suma + i
+
+    pregunta = pd.DataFrame({"Unión": [1, 2, 3],
+                             zona: [[c_hz_suma, por(c_hz_T, c_hz_suma)], [u_hz_suma, por(u_hz_T, u_hz_suma)],
+                                    [c_hz_suma + u_hz_suma, por(hz_total, c_hz_suma + u_hz_suma)]]
+                             }, index=["Cidma", "Uruguay", "Total"])
+
+    return (pregunta, "{} CIDMA hallazgos más frecuentes {}".format(zona, c_hz_f[0:3]),
+            "{} Uruguay hallazgos más frecuentes {}".format(zona, u_hz_f[0:3]))
+

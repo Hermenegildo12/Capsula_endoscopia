@@ -42,3 +42,8 @@ print("El intestino delgado se visualizo e informo en {} pacientes, equivaliendo
 oculto["Evaluado e informado "]= [[c_vision_del,c_vision_del_por],
                                   [u_vision_del, u_vision_del_por],[c_vision_del+u_vision_del,
                                 por(len(datos),c_vision_del+u_vision_del)]]
+
+#Resultado yeyuno e íleon
+#Como se ve en la tabla, CIDMA en el hallazgo de esa zona en conjunto tiene un 10% mas de hallazgos
+# frente al hospital Italiano. Lo que puede deberse a que en este último suele usarse la cápsula COLON2 con el modo por defecto,
+# lo cual programa la cápsula para que se apague hasta llegar al colon,
