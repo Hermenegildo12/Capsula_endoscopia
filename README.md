@@ -16,4 +16,4 @@ Tipo de cápsulas existentes según el año de aprobación por la FDA, donde se 
 
 <img src="tipos.png" />
 
-#Nota: No se adjunta la base de datos por motivos confidenciales.
+# Nota: No se adjunta la base de datos por motivos confidenciales. #
