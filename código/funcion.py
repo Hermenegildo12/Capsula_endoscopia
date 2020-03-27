@@ -420,3 +420,26 @@ def porcentajes(datos,hz_Tta,hz_prueba,no_evaluable,indicacion):
                                                                                 hz_prueba_frec_uruguay[0:3]),
         "Uruguay pacientes sin hallazgos patológicos con áreas del tracto digestivo no evaluables {}".format(
             N_No_eva_uruguay))
+
+
+#Función: para pasar todos analizar porcentajes según centro de los criterios de calidad
+#Función que recibe como parámetros:
+#Indicacion: Columna a analizar // valor: Valor apartir del cual queremos seleccionar // signo: Para distinguir entre
+#Mayor e igual al valor introducido
+#Devuelve 2 columnas, una es la indicacion y la otra seria la unión, que permitiria unir a futuras tablas.
+def resumen (datos,indicacion,valor,signo):
+    c_a = datos[datos['Médico']==0]
+    u_b= datos[datos['Médico']==1]
+    c_T=len(c_a)
+    u_T=len(u_b)
+    if signo==">":
+        c_sub=c_a[c_a[indicacion]>=valor]
+        u_sub=u_b[u_b[indicacion]>=valor]
+    elif signo=="=":
+        c_sub=c_a[c_a[indicacion]==valor]
+        u_sub=u_b[u_b[indicacion]==valor]
+    x=pd.DataFrame({"unión":[1,2,3],
+                    indicacion:[[len(c_sub),por(108,len(c_sub))],[len(u_sub),por(143,len(u_sub))],
+                                [len(c_sub)+len(u_sub),por(251,len(c_sub)+len(u_sub))]]}
+                        ,index=["Cidma","Uruguay","Total"])
+    return x

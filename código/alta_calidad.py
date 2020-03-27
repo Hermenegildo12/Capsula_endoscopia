@@ -55,6 +55,8 @@ Prueba_total=c_eva_total[c_eva_total["Hz_prueba"]>=1]
 #Pacientes con altos criterios de calidad sin hallazgos patologicos
 sanos_total=c_eva_total[(c_eva_total["Hz_Tta"]==0) & (c_eva_total["Hz_prueba"]==0) ]
 
+
+#Cuadro resumen de pacientes con informes de alta calidad
 cuadro("Alta calidad",len(c_eva_total),1,
        "No hallazgo patológicos",len(sanos_total),1,
        "Hallazgo de tratamiento", len(Tta_total),1,
