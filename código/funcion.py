@@ -1,5 +1,6 @@
 
 import pandas as pd
+import operator
 #Función: Recibe una columna de la base de datos y le suma los hallazgos de hernia de hiato totales
 #Parámetros: fila: Columna donde poner la suma
 def hernia (fila):
@@ -72,3 +73,350 @@ def cuadro(tema,c_t,u_t,primera,c_p,u_p,segunda,c_s,u_s,tercera=0,c_ter=0,u_ter=
                        tercera:[[c_ter,por(c_t,c_ter)],[u_ter,por(u_t,u_ter)]],}
                         ,index=["Cidma","Uruguay"])
     return x
+
+
+# Función que recibe una indicación y mira el número de pacientes (CIDMA, Uruguay) y calcular (número y porcentaje)
+# de hallazgos terapéutico, pruebas complementarias y no evaluables.
+# Junto a eso también porporciona los hallazgos más frecuentes y si de los pacientes sin hallazgos clasificados como
+# Normal tienen zonas no evaluadas.
+#Parámetros: datos(Base de datos), hz_Tta, hz_prueba, no_evaluable: variables que agrupran dichas columnas
+#indicacion: Indicación a evaluar
+# NOTA: Para entender la función, se desgrana mejor apartir del else, el resto es lo mismo pero mas agrupado y
+# recortado
+def porcentajes(datos,hz_Tta,hz_prueba,no_evaluable,indicacion):
+    cidma_a = datos[(datos['Médico'] == 0) & (datos[indicacion] == 1)]
+    uruguay_b = datos[(datos['Médico'] == 1) & (datos[indicacion] == 1)]
+    paciente_indicacion = len(cidma_a)
+    paciente_indicacion_uru = len(uruguay_b)
+
+    if paciente_indicacion == 0:
+        uruguay_b["Hz_Tta"] = uruguay_b[hz_Tta].sum(axis=1)
+        hzgs_T_uruguay = len(uruguay_b[uruguay_b["Hz_Tta"] >= 1])
+        uruguay_b["Hz_Prueba"] = uruguay_b[hz_prueba].sum(axis=1)
+        hzgs_P_uruguay = len(uruguay_b[uruguay_b["Hz_Prueba"] >= 1])
+        norml_uruguay = uruguay_b[(uruguay_b["Hz_Tta"] == 0) &
+                                  (uruguay_b["Hz_Prueba"] == 0)]
+        normal_uruguay = len(norml_uruguay)
+        no_visi_uruguay = []
+        No_visi_uruguay = []
+        for e in no_evaluable:
+            a_uru = uruguay_b[e].isin([1])
+            for i in a_uru:
+                if i == 1:
+                    b_uru = uruguay_b[e][a_uru].index
+                    no_visi_uruguay.append(b_uru)
+                elif len(no_visi_uruguay) >= 1:
+                    for j in no_visi_uruguay:
+                        for x in j:
+                            No_visi_uruguay.append(x)
+                elif len(no_visi_uruguay) == 0:
+                    No_visi_uruguay = []
+        NO_VISIBLE_uruguay = set(No_visi_uruguay)
+        no_eva_uruguay = len(NO_VISIBLE_uruguay)
+        N_No_eva_urugua = []
+        for e in NO_VISIBLE_uruguay:
+            for i in norml_uruguay.index:
+                if e == i:
+                    N_No_eva_urugua.append(e)
+        N_No_eva_uruguay = len(N_No_eva_urugua)
+        dic_b = {}
+        for e in hz_Tta:
+            b = uruguay_b[e].value_counts()
+            dic_b[e] = b
+        hz_Tta_frec_uruguay = {}
+        for e in hz_Tta:
+            if len(dic_b[e]) > 1:
+                hz_Tta_frec_uruguay[e] = dic_b[e][1]
+            elif len(dic_b[e]) == 1:
+                if dic_b[e].keys() == 0:
+                    del dic_b[e]
+            else:
+                hz_Tta_frec_uruguay[e] = dic_b[e][1]
+        hz_Tta_frec_uruguay = sorted(hz_Tta_frec_uruguay.items(), key=operator.itemgetter(1), reverse=True)
+        for e in hz_prueba:
+            c = uruguay_b[e].value_counts()
+            dic_b[e] = c
+        hz_prueba_frec_uruguay = {}
+        for e in hz_prueba:
+            if len(dic_b[e]) > 1:
+                hz_prueba_frec_uruguay[e] = dic_b[e][1]
+            elif len(dic_b[e]) == 1:
+                if dic_b[e].keys() == 0:
+                    del dic_b[e]
+            else:
+                hz_prueba_frec_uruguay[e] = dic_b[e][1]
+        hz_prueba_frec_uruguay = sorted(hz_prueba_frec_uruguay.items(), key=operator.itemgetter(1), reverse=True)
+
+        pregunta = pd.DataFrame({"Pacientes": ["NO", paciente_indicacion_uru],
+                                 "Normal": [["NO"], [normal_uruguay, str(
+                                     round((normal_uruguay * 100 / paciente_indicacion_uru), 2)) + " %"]],
+                                 "No evaluable": [["NO"], [no_eva_uruguay, str(
+                                     round((no_eva_uruguay * 100 / paciente_indicacion_uru), 2)) + " %"]],
+                                 "Hz Pruebas": [["NO"], [hzgs_P_uruguay, str(
+                                     round((hzgs_P_uruguay * 100 / paciente_indicacion_uru), 2)) + " %"]],
+                                 "Hz Tratamiento": [["NO"], [hzgs_T_uruguay, str(
+                                     round((hzgs_T_uruguay * 100 / paciente_indicacion_uru), 2)) + " %"]]}
+                                , index=["Cidma", "Uruguay"])
+
+        return (
+        pregunta, "{} Uruguay hallazgos terapeúticos más frecuentes {}".format(indicacion, hz_Tta_frec_uruguay[0:3]),
+        "{} Uruguay hallazgos pruebas complementarias {}".format(indicacion, hz_prueba_frec_uruguay[0:3]),
+        "Uruguay pacientes sin hallazgos patológicos con áreas del tracto digestivo no evaluables {}".format(
+            N_No_eva_uruguay),
+        "No CIDMA", "No CIDMA", "No CIDMA")
+
+
+    elif paciente_indicacion_uru == 0:
+        cidma_a["Hz_Tta"] = cidma_a[hz_Tta].sum(axis=1)
+        hzgs_T_cidma = len(cidma_a[cidma_a["Hz_Tta"] >= 1])
+        cidma_a["Hz_Prueba"] = cidma_a[hz_prueba].sum(axis=1)
+        hzgs_P_cidma = len(cidma_a[cidma_a["Hz_Prueba"] >= 1])
+        norml_cidma = cidma_a[(cidma_a["Hz_Tta"] == 0) & (cidma_a["Hz_Prueba"] == 0)]
+        normal_cidma = len(norml_cidma)
+        no_visi_cidma = []
+        No_visi_cidma = []
+        for e in no_evaluable:
+            a = cidma_a[e].isin([1])
+            for i in a:
+                if i == 1:
+                    b = cidma_a[e][a].index
+                    no_visi_cidma.append(b)
+                elif len(no_visi_cidma) >= 1:
+                    for j in no_visi_cidma:
+                        for x in j:
+                            No_visi_cidma.append(x)
+                elif len(no_visi_cidma) == 0:
+                    No_visi_cidma = []
+        NO_VISIBLE_cidma = set(No_visi_cidma)
+        no_eva_cidma = len(NO_VISIBLE_cidma)
+        N_No_eva_cidm = []
+        for e in NO_VISIBLE_cidma:
+            for i in norml_cidma.index:
+                if e == i:
+                    N_No_eva_cidm.append(e)
+        N_No_eva_cidma = len(N_No_eva_cidm)
+        dic = {}
+        for e in hz_Tta:
+            b = cidma_a[e].value_counts()
+            dic[e] = b
+        hz_Tta_frec_cidma = {}
+        for e in hz_Tta:
+            if len(dic[e]) > 1:
+                hz_Tta_frec_cidma[e] = dic[e][1]
+            elif len(dic[e]) == 1:
+                if dic[e].keys() == 0:
+                    del dic[e]
+            else:
+                hz_Tta_frec_cidma[e] = dic[e][1]
+        hz_Tta_frec_cidma = sorted(hz_Tta_frec_cidma.items(), key=operator.itemgetter(1), reverse=True)
+        dic = {}
+        for e in hz_prueba:
+            b = cidma_a[e].value_counts()
+            dic[e] = b
+        dic_b = {}
+        hz_prueba_frec_cidma = {}
+        for e in hz_prueba:
+            if len(dic[e]) > 1:
+                hz_prueba_frec_cidma[e] = dic[e][1]
+            elif len(dic[e]) == 1:
+                if dic[e].keys() == 0:
+                    del dic[e]
+            else:
+                hz_prueba_frec_cidma[e] = dic[e][1]
+        hz_prueba_frec_cidma = sorted(hz_prueba_frec_cidma.items(), key=operator.itemgetter(1), reverse=True)
+
+        pregunta = pd.DataFrame({"Pacientes": [paciente_indicacion, "NO"],
+                                 "Normal": [
+                                     [normal_cidma, str(round((normal_cidma * 100 / paciente_indicacion), 2)) + " %"],
+                                     ["NO"]],
+                                 "No evaluable": [
+                                     [no_eva_cidma, str(round((no_eva_cidma * 100 / paciente_indicacion), 2)) + " %"],
+                                     ["NO"]],
+                                 "Hz Pruebas": [
+                                     [hzgs_P_cidma, str(round((hzgs_P_cidma * 100 / paciente_indicacion), 2)) + " %"],
+                                     ["NO"]],
+                                 "Hz Tratamiento": [
+                                     [hzgs_T_cidma, str(round((hzgs_T_cidma * 100 / paciente_indicacion), 2)) + " %"],
+                                     ["NO"]]}, index=["Cidma", "Uruguay"])
+
+        return (
+        pregunta, "{} CIDMA hallazgos terapeúticos más frecuentes {}".format(indicacion, hz_Tta_frec_cidma[0:3]),
+        "{} CIDMA hallazgos pruebas complementarias {}".format(indicacion, hz_prueba_frec_cidma[0:3]),
+        "CIDMA pacientes sin hallazgos patológicos con áreas del tracto digestivo no evaluables {}".format(
+            N_No_eva_cidma),
+        "NO Uruguay", "No Uruguay", "No Uruguay")
+    else:
+        # Número de pacientes con hallazgos para futuras terapías
+        # CIDMA
+        cidma_a["Hz_Tta"] = cidma_a[hz_Tta].sum(axis=1)
+        hzgs_T_cidma = len(cidma_a[cidma_a["Hz_Tta"] >= 1])
+        # Uruguay
+        uruguay_b["Hz_Tta"] = uruguay_b[hz_Tta].sum(axis=1)
+        hzgs_T_uruguay = len(uruguay_b[uruguay_b["Hz_Tta"] >= 1])
+
+        # Número de pacientes con hallazgos para futuros estudios
+        # CIDMA
+        cidma_a["Hz_Prueba"] = cidma_a[hz_prueba].sum(axis=1)
+        hzgs_P_cidma = len(cidma_a[cidma_a["Hz_Prueba"] >= 1])
+        # Uruguay
+        uruguay_b["Hz_Prueba"] = uruguay_b[hz_prueba].sum(axis=1)
+        hzgs_P_uruguay = len(uruguay_b[uruguay_b["Hz_Prueba"] >= 1])
+
+        # Número de pacientes con hallazgos compatibles con la normalidad
+        # CIDMA
+        norml_cidma = cidma_a[(cidma_a["Hz_Tta"] == 0) &
+                              (cidma_a["Hz_Prueba"] == 0)]
+        normal_cidma = len(norml_cidma)
+        # Uruguay
+        norml_uruguay = uruguay_b[(uruguay_b["Hz_Tta"] == 0) &
+                                  (uruguay_b["Hz_Prueba"] == 0)]
+        normal_uruguay = len(norml_uruguay)
+
+        # Número de pacientes con zonas del tracto GI sin posible evaluación
+        # CIDMA
+        no_visi_cidma = []
+        No_visi_cidma = []
+        for e in no_evaluable:
+            a = cidma_a[e].isin([1])
+            for i in a:
+                if i == 1:
+                    b = cidma_a[e][a].index
+                    no_visi_cidma.append(b)
+                elif len(no_visi_cidma) >= 1:
+                    for j in no_visi_cidma:
+                        for x in j:
+                            No_visi_cidma.append(x)
+                elif len(no_visi_cidma) == 0:
+                    No_visi_cidma = []
+        NO_VISIBLE_cidma = set(No_visi_cidma)
+        no_eva_cidma = len(NO_VISIBLE_cidma)
+
+        # Pacientes sin hallazgos patologicos con zonas del tracto digestivo no evaluables
+        N_No_eva_cidm = []
+        for e in NO_VISIBLE_cidma:
+            for i in norml_cidma.index:
+                if e == i:
+                    N_No_eva_cidm.append(e)
+        N_No_eva_cidma = len(N_No_eva_cidm)
+        # Uruguay
+        no_visi_uruguay = []
+        No_visi_uruguay = []
+        for e in no_evaluable:
+            a_uru = uruguay_b[e].isin([1])
+            for i in a_uru:
+                if i == 1:
+                    b_uru = uruguay_b[e][a_uru].index
+                    no_visi_uruguay.append(b_uru)
+                elif len(no_visi_uruguay) >= 1:
+                    for j in no_visi_uruguay:
+                        for x in j:
+                            No_visi_uruguay.append(x)
+                elif len(no_visi_uruguay) == 0:
+                    No_visi_uruguay = []
+        NO_VISIBLE_uruguay = set(No_visi_uruguay)
+        no_eva_uruguay = len(NO_VISIBLE_uruguay)
+
+        N_No_eva_urugua = []
+        for e in NO_VISIBLE_uruguay:
+            for i in norml_uruguay.index:
+                if e == i:
+                    N_No_eva_urugua.append(e)
+        N_No_eva_uruguay = len(N_No_eva_urugua)
+
+        # Hallazgos tratamientos más frecuentes
+        # CIDMA
+        dic = {}
+        for e in hz_Tta:
+            b = cidma_a[e].value_counts()
+            dic[e] = b
+
+        hz_Tta_frec_cidma = {}
+        for e in hz_Tta:
+            if len(dic[e]) > 1:
+                hz_Tta_frec_cidma[e] = dic[e][1]
+            elif len(dic[e]) == 1:
+                if dic[e].keys() == 0:
+                    del dic[e]
+            else:
+                hz_Tta_frec_cidma[e] = dic[e][1]
+        hz_Tta_frec_cidma = sorted(hz_Tta_frec_cidma.items(), key=operator.itemgetter(1), reverse=True)
+
+        # Uruguay
+        dic_b = {}
+        for e in hz_Tta:
+            b = uruguay_b[e].value_counts()
+            dic_b[e] = b
+
+        hz_Tta_frec_uruguay = {}
+        for e in hz_Tta:
+            if len(dic_b[e]) > 1:
+                hz_Tta_frec_uruguay[e] = dic_b[e][1]
+            elif len(dic_b[e]) == 1:
+                if dic_b[e].keys() == 0:
+                    del dic_b[e]
+            else:
+                hz_Tta_frec_uruguay[e] = dic[e][1]
+        hz_Tta_frec_uruguay = sorted(hz_Tta_frec_uruguay.items(), key=operator.itemgetter(1), reverse=True)
+
+        # Hallazgos pruebas complementarias mas frecuentes
+        # CIDMA
+        dic = {}
+        for e in hz_prueba:
+            b = cidma_a[e].value_counts()
+            dic[e] = b
+        hz_prueba_frec_cidma = {}
+        for e in hz_prueba:
+            if len(dic[e]) > 1:
+                hz_prueba_frec_cidma[e] = dic[e][1]
+            elif len(dic[e]) == 1:
+                if dic[e].keys() == 0:
+                    del dic[e]
+            else:
+                hz_prueba_frec_cidma[e] = dic[e][1]
+        hz_prueba_frec_cidma = sorted(hz_prueba_frec_cidma.items(), key=operator.itemgetter(1), reverse=True)
+
+        # Uruguay
+        dic_b = {}
+        for e in hz_prueba:
+            c = uruguay_b[e].value_counts()
+            dic_b[e] = c
+        hz_prueba_frec_uruguay = {}
+        for e in hz_prueba:
+            if len(dic_b[e]) > 1:
+                hz_prueba_frec_uruguay[e] = dic_b[e][1]
+            elif len(dic_b[e]) == 1:
+                if dic_b[e].keys() == 0:
+                    del dic_b[e]
+            else:
+                hz_prueba_frec_uruguay[e] = dic_b[e][1]
+        hz_prueba_frec_uruguay = sorted(hz_prueba_frec_uruguay.items(), key=operator.itemgetter(1), reverse=True)
+
+        pregunta = pd.DataFrame({"Pacientes": [paciente_indicacion, paciente_indicacion_uru],
+                                 "Normal": [
+                                     [normal_cidma, str(round((normal_cidma * 100 / paciente_indicacion), 2)) + " %"],
+                                     [normal_uruguay,
+                                      str(round((normal_uruguay * 100 / paciente_indicacion_uru), 2)) + " %"]],
+                                 "No evaluable": [
+                                     [no_eva_cidma, str(round((no_eva_cidma * 100 / paciente_indicacion), 2)) + " %"],
+                                     [no_eva_uruguay,
+                                      str(round((no_eva_uruguay * 100 / paciente_indicacion_uru), 2)) + " %"]],
+                                 "Hz Pruebas": [
+                                     [hzgs_P_cidma, str(round((hzgs_P_cidma * 100 / paciente_indicacion), 2)) + " %"],
+                                     [hzgs_P_uruguay,
+                                      str(round((hzgs_P_uruguay * 100 / paciente_indicacion_uru), 2)) + " %"]],
+                                 "Hz Tratamiento": [
+                                     [hzgs_T_cidma, str(round((hzgs_T_cidma * 100 / paciente_indicacion), 2)) + " %"],
+                                     [hzgs_T_uruguay,
+                                      str(round((hzgs_T_uruguay * 100 / paciente_indicacion_uru), 2)) + " %"]]}
+                                , index=["Cidma", "Uruguay"])
+
+        return (
+        pregunta, "{} CIDMA hallazgos terapeúticos más frecuentes {}".format(indicacion, hz_Tta_frec_cidma[0:3]),
+        "{} CIDMA hallazgos pruebas complementarias {}".format(indicacion, hz_prueba_frec_cidma[0:3]),
+        "CIDMA pacientes sin hallazgos patológicos con áreas del tracto digestivo no evaluables {}".format(
+            N_No_eva_cidma),
+        "{} Uruguay hallazgos terapeúticos más frecuentes {}".format(indicacion, hz_Tta_frec_uruguay[0:3]),
+        "{} Uruguay hallazgos pruebas complementarias más frecuentes {}".format(indicacion,
+                                                                                hz_prueba_frec_uruguay[0:3]),
+        "Uruguay pacientes sin hallazgos patológicos con áreas del tracto digestivo no evaluables {}".format(
+            N_No_eva_uruguay))
