@@ -1,6 +1,0 @@
-from analisis import *
-
-
-def dos (a):
-    b=a+2
-    return b
