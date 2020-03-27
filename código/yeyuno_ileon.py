@@ -29,3 +29,16 @@ oculto["Total"]=[[oculto["Hz_íleon"]["Total"][0],por(len(datos[datos["Médico"]
                 oculto["Hz_yeyuno"]["Uruguay"][0]+oculto["Hz_íleon"]["Uruguay"][0])],
                  [T_oculto,T_p_oculto]]
 
+c_vision_del=len(datos[((datos["No_evaluable_del"]==0)& (datos['No_informado_del']==0)) &
+                     ((datos['Médico']==0)) ])
+u_vision_del=len(datos[((datos["No_evaluable_del"]==0)& (datos['No_informado_del']==0)) &
+                     ((datos['Médico']==1)) ])
+
+c_vision_del_por=por(len(datos[datos["Médico"]==0]),c_vision_del)
+u_vision_del_por=por(len(datos[datos["Médico"]==1]),u_vision_del)
+
+print("El intestino delgado se visualizo e informo en {} pacientes, equivaliendo al {}% del total".format(c_vision_del,u_vision_del_por))
+
+oculto["Evaluado e informado "]= [[c_vision_del,c_vision_del_por],
+                                  [u_vision_del, u_vision_del_por],[c_vision_del+u_vision_del,
+                                por(len(datos),c_vision_del+u_vision_del)]]
