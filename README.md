@@ -1,8 +1,8 @@
 # ¿QUÉ APORTA LA PANCAPSULOENDOSCOPIA EN EL DIAGNÓSTICO DE LA PATOLOGÍA DEL TRACTO DIGESTIVO?
 La pancapsuloendoscopia es una técnica novedosa y reciente que se utiliza para el estudio de la patología del tubo digestivo. Cuenta con numerosas ventajas como:
-- No requerir sedación
-- Capacidad de visualizar todo el tracto gastrointestinal 
-- Bajo riesgo de complicaciones
+- No requerir sedación.
+- Capacidad de visualizar todo el tracto gastrointestinal.
+- Bajo riesgo de complicaciones.
 
 Como se aprecia en la imagen, las técnicas endoscopicas más frecuentes no llegan a cubrir la totalidad del tracto. Dejando al yeyuno y al íleon prácticamente sin posible evaluación a diferencia de las cápsulas de colon.
 
